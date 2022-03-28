@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "descriptiveContext": {
+      "value": "ase"
+    },
+    "environment": {
+      "value": "dev"
+    },
+    "projectName": {
+      "value": "adap"
+    },
+    "airportLocationCode": {
+      "value": "mel"
+    },
+    "resourceGroupLocation": {
+      "value": "australiasoutheast"
+    },
+    "enabledForDeployment": {
+      "value": true
+    },
+    "enabledForDiskEncryption": {
+      "value": true
+    },
+    "enabledForTemplateDeployment": {
+      "value": true
+    },
+    "skuName": {
+      "value": "Standard"
+    },
+    "vnetName": {
+      "value": "vnet-npd-mel-workloads-01"
+    },
+    "subNetName": {
+      "value": "sn-npd-mel-dev-ase-01"
+    },
+    "objectIdUser": {
+      "value": "80079d54-e89e-4f00-84c1-0300656c4fd7"
+    },
+    "permissionsKeys": {
+      "value": [
+        "Get",
+        "List",
+        "Update",
+        "Create",
+        "Import",
+        "Delete",
+        "Recover",
+        "Backup",
+        "Restore"
+      ]
+    },
+    "permissionsSecrets": {
+      "value": [
+        "Get",
+        "List",
+        "Set",
+        "Delete",
+        "Recover",
+        "Backup",
+        "Restore"
+      ]
+    },
+    "permissionsCertificates": {
+      "value": [
+        "Get",
+        "List",
+        "Update",
+        "Create",
+        "Import",
+        "Delete",
+        "Recover",
+        "Backup",
+        "Restore",
+        "ManageContacts",
+        "ManageIssuers",
+        "GetIssuers",
+        "ListIssuers",
+        "SetIssuers",
+        "DeleteIssuers"
+      ]
+    },
+    "logAnalyticsName": {
+      "value": "la-npd-mel-dev-adap-main"
+    },
+    "actionGroupName": {
+      "value": "ag-npd-mel-dev-adap"
+    },
+    "alertDescription": {
+      "value": "Default Alert for the resource."
+    }
+  }
+}
