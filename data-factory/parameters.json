@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "dev"
+    },
+    "projectName": {
+      "value": "adap"
+    },
+    "airportLocationCode": {
+      "value": "syd"
+    },
+    "resourceGroupLocation": {
+      "value": "australiaeast"
+    },
+    "descriptiveContext": {
+      "value": "main"
+    },
+    "gitAccountName": {
+      "value": "ambulancevictoria"
+    },
+    "gitRepositoryName": {
+      "value": "adap-ingestion"
+    },
+    "gitBranchName": {
+      "value": "dev"
+    },
+    "gitRootFolder": {
+      "value": "data-factory"
+    },
+    "gitProjectName": {
+      "value": "AV-Azure-ADAP"
+    },
+    "logAnalyticsName": {
+      "value": "la-npd-mel-dev-adap-main"
+    },
+    "actionGroupName": {
+      "value": "ag-npd-mel-dev-adap"
+    },
+    "alertDescription": {
+      "value": "Default Alert for the resource."
+    }
+  }
+}
