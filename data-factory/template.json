@@ -1,0 +1,169 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "allowedValues": [
+                "dev",
+                "tst",
+                "stg",
+                "prd"
+            ],
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "projectName": {
+            "defaultValue": "adap",
+            "type": "String"
+        },
+        "airportLocationCode": {
+            "allowedValues": [
+                "syd"
+            ],
+            "defaultValue": "syd",
+            "type": "String"
+        },
+        "resourceGroupLocation": {
+            "allowedValues": [
+                "australiaeast"
+            ],
+            "defaultValue": "australiaeast",
+            "type": "String"
+        },
+        "descriptiveContext": {
+            "defaultValue": "main",
+            "type": "String",
+            "maxLength": 16
+        },
+        "gitAccountName": {
+            "defaultValue": "ambulancevictoria",
+            "type": "String"
+        },
+        "gitRepositoryName": {
+            "defaultValue": "adap-ingestion",
+            "type": "String"
+        },
+        "gitBranchName": {
+            "defaultValue": "dev",
+            "type": "String"
+        },
+        "gitRootFolder": {
+            "defaultValue": "data-factory",
+            "type": "String"
+        },
+        "gitProjectName": {
+            "defaultValue": "AV-Azure-ADAP",
+            "type": "String"
+        },
+        "logAnalyticsName": {
+            "type": "string",
+            "defaultValue": "la-npd-mel-dev-adap-main" 
+        },
+		"actionGroupName": { 
+			"type": "string",
+			"defaultValue": "ag-npd-mel-dev-adap"
+		},
+		"alertDescription": {
+			"type": "string",
+			"defaultValue": "Default Alert for the resource."
+		}	
+    },
+    "variables": {
+        "subscriptionId": "[subscription().subscriptionId]",
+        "subscriptionName": "[if(or(equals(parameters('environment'),'prd'),equals(parameters('environment'),'stg')),'prd','npd')]",
+        "subscriptionLocationEnvironment": "[concat(variables('subscriptionName'),'-',parameters('airportLocationCode'),'-',parameters('environment'))]",
+        "dataFactoryName": "[concat('df','-', variables('subscriptionLocationEnvironment'),'-', parameters('projectName'),'-', parameters('descriptiveContext'))]",
+        "diagnosticSettingName": "[concat('diag','-', variables('subscriptionName'),'-', parameters('airportLocationCode'),'-',toLower(parameters('environment')),'-', parameters('projectName'), '-', 'df', '-', parameters('descriptiveContext'))]",
+        "alertName": "[concat('alrt','-',variables('subscriptionName'),'-', toLower(parameters('environment')),'-', parameters('projectName'),'-','vm','-', parameters('descriptiveContext'))]",
+        "resourceId": "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]",
+        "resourceGroupName": "[resourceGroup().name]",
+        "actiongroupID": "[concat('/subscriptions/',variables('subscriptionId'),'/resourceGroups/',variables('resourceGroupName'), '/providers/Microsoft.Insights/actiongroups/',parameters('actionGroupName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "name": "[variables('dataFactoryName')]",
+            "location": "[parameters('resourceGroupLocation')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "repoConfiguration": {
+                    "type": "FactoryVSTSConfiguration",
+                    "accountName": "[parameters('gitAccountName')]",
+                    "repositoryName": "[parameters('gitRepositoryName')]",
+                    "collaborationBranch": "[parameters('gitBranchName')]",
+                    "rootFolder": "[parameters('gitRootFolder')]",
+                    "projectName": "[parameters('gitProjectName')]"
+                }
+            }
+        },
+        {
+			"type": "Microsoft.DataFactory/factories/providers/diagnosticSettings",
+			"apiVersion": "2017-05-01-preview",
+			"name": "[concat(variables('dataFactoryName'), '/Microsoft.Insights/', variables('diagnosticSettingName'))]",
+			"location": "Global",
+            "dependsOn": [
+                "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]"
+            ],
+			"properties": {
+                "name": "[variables('diagnosticSettingName')]",
+				"workspaceId": "[resourceId('Microsoft.Operationalinsights/workspaces', parameters('logAnalyticsName'))]",
+                "logs": [
+                    {
+                        "category": "ActivityRuns",
+                        "enabled": true
+                    },
+                    {
+                        "category": "PipelineRuns",
+                        "enabled": true
+                    },
+                    {
+                        "category": "TriggerRuns",
+                        "enabled": true
+                    }
+                ],
+                "metrics": [
+                    {
+                        "category": "AllMetrics",
+                        "enabled": true
+                    }
+                ]
+			}
+		},
+        {
+            "type": "microsoft.insights/activityLogAlerts",
+            "apiVersion": "2017-04-01",
+            "name": "[variables('alertName')]",
+            "location": "Global",
+            "properties": {
+                "scopes": [
+                    "[concat('/subscriptions/',variables('subscriptionId'))]"
+                ],
+                "condition": {
+                    "allOf": [
+                        {
+                            "field": "category",
+                            "equals": "Administrative"
+                        },
+                        {
+                            "field": "resourceId",
+                            "equals": "[variables('resourceID')]"
+                        }
+                    ]
+                },
+                "actions": {
+                    "actionGroups": [
+                        {
+                            "actionGroupId": "[variables('actionGroupId')]",
+                            "webhookProperties": {}
+                        }
+                    ]
+                },
+                "enabled": true,
+                "description": "[parameters('alertDescription')]"
+            }
+        }
+    ]
+}
